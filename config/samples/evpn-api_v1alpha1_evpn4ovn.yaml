@@ -1,0 +1,9 @@
+apiVersion: evpn-api.domain-x.com/v1alpha1
+kind: Evpn4Ovn
+metadata:
+  labels:
+    app.kubernetes.io/name: evpn-for-ovn-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: evpn4ovn-sample
+spec:
+  # TODO(user): Add fields here

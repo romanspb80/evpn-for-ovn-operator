@@ -1,0 +1,23 @@
+# permissions for end users to view evpn4ovns.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: evpn-for-ovn-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: evpn4ovn-viewer-role
+rules:
+- apiGroups:
+  - evpn-api.domain-x.com
+  resources:
+  - evpn4ovns
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - evpn-api.domain-x.com
+  resources:
+  - evpn4ovns/status
+  verbs:
+  - get

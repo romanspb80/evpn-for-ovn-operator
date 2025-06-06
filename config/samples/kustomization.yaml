@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- evpn-api_v1alpha1_evpn4ovn.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

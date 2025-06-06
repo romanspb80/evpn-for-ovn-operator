@@ -1,0 +1,151 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: evpn4ovns.evpn-api.domain-x.com
+spec:
+  group: evpn-api.domain-x.com
+  names:
+    kind: Evpn4Ovn
+    listKind: Evpn4OvnList
+    plural: evpn4ovns
+    singular: evpn4ovn
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Evpn4Ovn is the Schema for the evpn4ovns API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Evpn4OvnSpec defines the desired state of Evpn4Ovn
+            properties:
+              api:
+                description: Evpn4OvnSpec defines the desired state of Evpn4Ovn
+                properties:
+                  image:
+                    description: Name  string `json:"name,omitempty"`
+                    type: string
+                  port:
+                    format: int32
+                    type: integer
+                type: object
+              bgpService:
+                properties:
+                  endpoints:
+                    properties:
+                      ip:
+                        description: "Name\t\tstring `json:\"name,omitempty\"`"
+                        items:
+                          type: string
+                        type: array
+                      ports:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            port:
+                              format: int32
+                              type: integer
+                          type: object
+                        type: array
+                    type: object
+                  name:
+                    type: string
+                type: object
+              configMap:
+                type: string
+              mpbgpAgent:
+                properties:
+                  image:
+                    description: Name  string `json:"name,omitempty"`
+                    type: string
+                type: object
+              ovsdbAgent:
+                properties:
+                  image:
+                    description: "Name\t\tstring `json:\"name,omitempty\"`"
+                    type: string
+                  ovnProvider:
+                    type: string
+                type: object
+              ovsdbService:
+                properties:
+                  endpoints:
+                    properties:
+                      ip:
+                        description: "Name\t\tstring `json:\"name,omitempty\"`"
+                        items:
+                          type: string
+                        type: array
+                      ports:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            port:
+                              format: int32
+                              type: integer
+                          type: object
+                        type: array
+                    type: object
+                  name:
+                    type: string
+                type: object
+              rabbitmqService:
+                properties:
+                  endpoints:
+                    properties:
+                      ip:
+                        description: "Name\t\tstring `json:\"name,omitempty\"`"
+                        items:
+                          type: string
+                        type: array
+                      ports:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            port:
+                              format: int32
+                              type: integer
+                          type: object
+                        type: array
+                    type: object
+                  name:
+                    type: string
+                type: object
+              replicas:
+                format: int32
+                type: integer
+            required:
+            - api
+            - configMap
+            type: object
+          status:
+            description: Evpn4OvnStatus defines the observed state of Evpn4Ovn
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

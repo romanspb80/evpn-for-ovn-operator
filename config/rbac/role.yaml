@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - evpn-api.domain-x.com
+  resources:
+  - evpn4ovns
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - evpn-api.domain-x.com
+  resources:
+  - evpn4ovns/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - evpn-api.domain-x.com
+  resources:
+  - evpn4ovns/status
+  verbs:
+  - get
+  - patch
+  - update
