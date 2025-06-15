@@ -153,8 +153,8 @@ func (r *Evpn4OvnReconciler) createOrUpdateApiReplicaSet(ctx context.Context, ev
 	replicas := int32(1)
 	apiReplicaSet = appsv1.ReplicaSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "evpn-api",
-			//Namespace: evpn4ovn.ObjectMeta.Name,
+			Name:      "evpn-api",
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Spec: appsv1.ReplicaSetSpec{
 			Replicas: &replicas,
@@ -240,7 +240,7 @@ func (r *Evpn4OvnReconciler) createOrUpdateOvsdbAgentReplicaSet(ctx context.Cont
 		ovsdbAgentReplicaSet = appsv1.ReplicaSet{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "ovsdb-agent",
-				Namespace: evpn4ovn.ObjectMeta.Name,
+				Namespace: evpn4ovn.ObjectMeta.Namespace,
 				Labels:    map[string]string{"app": "ovsdb-agent"},
 				OwnerReferences: []metav1.OwnerReference{
 					{
@@ -315,7 +315,7 @@ func (r *Evpn4OvnReconciler) createOrUpdateMpbgpAgentDaemonset(ctx context.Conte
 	mpbgpAgentDaemonset := appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      evpn4ovn.ObjectMeta.Name + "-daemonset",
-			Namespace: evpn4ovn.ObjectMeta.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 			Labels:    map[string]string{"app": "mpbgp-agent"},
 		},
 		Spec: appsv1.DaemonSetSpec{
@@ -362,8 +362,8 @@ func (r *Evpn4OvnReconciler) createOrUpdateMpbgpAgentDaemonset(ctx context.Conte
 func (r *Evpn4OvnReconciler) createApiService(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	srv := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "api-svc",
-			//Namespace: evpn4ovn.ObjectMeta.Name,
+			Name:      "api-svc",
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{"app": "evpn-api"},
@@ -388,8 +388,8 @@ func (r *Evpn4OvnReconciler) createApiService(ctx context.Context, evpn4ovn *evp
 func (r *Evpn4OvnReconciler) createRabbitmqService(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	srv := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: evpn4ovn.Spec.RabbitmqService.Name,
-			//Namespace: evpn4ovn.ObjectMeta.Name,
+			Name:      evpn4ovn.Spec.RabbitmqService.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Type: corev1.ServiceTypeNodePort,
@@ -417,7 +417,8 @@ func (r *Evpn4OvnReconciler) createRabbitmqService(ctx context.Context, evpn4ovn
 func (r *Evpn4OvnReconciler) createRabbitmqEndpoint(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	ep := corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: evpn4ovn.Spec.RabbitmqService.Name,
+			Name:      evpn4ovn.Spec.RabbitmqService.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Subsets: []corev1.EndpointSubset{
 			{
@@ -445,7 +446,8 @@ func (r *Evpn4OvnReconciler) createRabbitmqEndpoint(ctx context.Context, evpn4ov
 func (r *Evpn4OvnReconciler) createBgpEndpoint(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	ep := corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: evpn4ovn.Spec.BgpService.Name,
+			Name:      evpn4ovn.Spec.BgpService.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Subsets: []corev1.EndpointSubset{
 			{
@@ -484,8 +486,8 @@ func (r *Evpn4OvnReconciler) createOvsdbService(ctx context.Context, evpn4ovn *e
 	}
 	srv := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: evpn4ovn.Spec.OvsdbService.Name,
-			//Namespace: evpn4ovn.ObjectMeta.Name,
+			Name:      evpn4ovn.Spec.OvsdbService.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Spec: corev1.ServiceSpec{
 			Type: corev1.ServiceTypeNodePort,
@@ -514,7 +516,8 @@ func (r *Evpn4OvnReconciler) createOvsdbEndpoint(ctx context.Context, evpn4ovn *
 	}
 	ep := corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: evpn4ovn.Spec.RabbitmqService.Name,
+			Name:      evpn4ovn.Spec.RabbitmqService.Name,
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
 		},
 		Subsets: []corev1.EndpointSubset{
 			{
