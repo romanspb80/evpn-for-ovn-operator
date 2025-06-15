@@ -90,7 +90,7 @@ func (r *Evpn4OvnReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 func (r *Evpn4OvnReconciler) reconcileCreate(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) (ctrl.Result, error) {
 	l := log.FromContext(ctx)
 
-	l.Info("Creating ApiReplicaSe")
+	l.Info("Creating ApiReplicaSet")
 	err := r.createOrUpdateApiReplicaSet(ctx, evpn4ovn)
 	if err != nil {
 		return ctrl.Result{}, err
