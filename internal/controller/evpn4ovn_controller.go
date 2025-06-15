@@ -239,10 +239,8 @@ func (r *Evpn4OvnReconciler) createOrUpdateOvsdbAgentReplicaSet(ctx context.Cont
 
 		ovsdbAgentReplicaSet = appsv1.ReplicaSet{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "ovsdb-agent",
-				// ToDo: fix issue with namespace resolving
-				//Namespace: evpn4ovn.ObjectMeta.Namespace,
-				Namespace: "default",
+				Name:      "ovsdb-agent",
+				Namespace: evpn4ovn.ObjectMeta.Namespace,
 				Labels:    map[string]string{"app": "ovsdb-agent"},
 				OwnerReferences: []metav1.OwnerReference{
 					{
