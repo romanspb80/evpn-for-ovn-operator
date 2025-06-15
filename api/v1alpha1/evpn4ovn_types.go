@@ -65,8 +65,11 @@ type EndpointsSpec struct {
 }
 
 type PortSpec struct {
-	Name string `json:"name,omitempty"`
-	Port int32  `json:"port,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Port       int32  `json:"port,omitempty"`
+	TargetPort int32  `json:"targetPort,omitempty"`
+	Protocol   string `json:"protocol,omitempty"`
+	NodePort   int32  `json:"nodePort,omitempty"`
 }
 
 // Evpn4OvnStatus defines the observed state of Evpn4Ovn

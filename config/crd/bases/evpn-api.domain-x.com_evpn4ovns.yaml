@@ -63,7 +63,15 @@ spec:
                           properties:
                             name:
                               type: string
+                            nodePort:
+                              format: int32
+                              type: integer
                             port:
+                              format: int32
+                              type: integer
+                            protocol:
+                              type: string
+                            targetPort:
                               format: int32
                               type: integer
                           type: object
@@ -102,7 +110,15 @@ spec:
                           properties:
                             name:
                               type: string
+                            nodePort:
+                              format: int32
+                              type: integer
                             port:
+                              format: int32
+                              type: integer
+                            protocol:
+                              type: string
+                            targetPort:
                               format: int32
                               type: integer
                           type: object
@@ -125,7 +141,15 @@ spec:
                           properties:
                             name:
                               type: string
+                            nodePort:
+                              format: int32
+                              type: integer
                             port:
+                              format: int32
+                              type: integer
+                            protocol:
+                              type: string
+                            targetPort:
                               format: int32
                               type: integer
                           type: object

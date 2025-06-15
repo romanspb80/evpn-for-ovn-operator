@@ -370,7 +370,7 @@ func (r *Evpn4OvnReconciler) createApiService(ctx context.Context, evpn4ovn *evp
 			Ports: []corev1.ServicePort{
 				{
 					Port:       evpn4ovn.Spec.Api.Port,
-					TargetPort: intstr.FromString("http"),
+					TargetPort: intstr.FromInt32(evpn4ovn.Spec.Api.Port),
 				},
 			},
 		},
@@ -477,9 +477,9 @@ func (r *Evpn4OvnReconciler) createOvsdbService(ctx context.Context, evpn4ovn *e
 		svcPorts = append(svcPorts, corev1.ServicePort{
 			Name:       ports[i].Name,
 			Port:       ports[i].Port,
-			TargetPort: intstr.FromInt32(ports[i].Port),
+			TargetPort: intstr.FromInt32(ports[i].TargetPort),
 			Protocol:   corev1.ProtocolTCP,
-			NodePort:   0,
+			NodePort:   ports[i].NodePort,
 		})
 	}
 	srv := corev1.Service{
