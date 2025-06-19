@@ -23,7 +23,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
@@ -133,13 +132,13 @@ func (r *Evpn4OvnReconciler) reconcileCreate(ctx context.Context, evpn4ovn *evpn
 	}
 
 	l.Info("Creating OVSDB service")
-	err = r.createRabbitmqService(ctx, evpn4ovn)
+	err = r.createOvsdbService(ctx, evpn4ovn)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	l.Info("Creating OVSDB endpoint")
-	err = r.createRabbitmqEndpoint(ctx, evpn4ovn)
+	err = r.createOvsdbEndpoint(ctx, evpn4ovn)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -159,15 +158,11 @@ func (r *Evpn4OvnReconciler) createOrUpdateApiReplicaSet(ctx context.Context, ev
 		Spec: appsv1.ReplicaSetSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "evpn-api",
-				},
+				MatchLabels: map[string]string{"app": "evpn-api"},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": "evpn-api",
-					},
+					Labels: map[string]string{"app": "evpn-api"},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -214,79 +209,55 @@ func (r *Evpn4OvnReconciler) createOrUpdateApiReplicaSet(ctx context.Context, ev
 func (r *Evpn4OvnReconciler) createOrUpdateOvsdbAgentReplicaSet(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	var ovsdbAgentReplicaSet appsv1.ReplicaSet
 	replicas := int32(1)
-	rsName := types.NamespacedName{Name: "ovsdb-agent"} //Namespace: evpn4ovn.ObjectMeta.Name,
-
-	if err := r.Get(ctx, rsName, &ovsdbAgentReplicaSet); err != nil {
-		if !apierrors.IsNotFound(err) {
-			return fmt.Errorf("unable to fetch ReplicaSet: %v", err)
-		}
-		/*If there is no Deployment, we will create it.
-		An essential section in the definition is OwnerReferences, as it indicates to k8s that
-		an Application is creating this resource.
-		This is how k8s knows that when we remove an Application, it must also remove
-		all the resources it created.
-		Another important detail is that we use data from our Application to create the Deployment,
-		such as image information, port, and replicas.
-		*/
-		if apierrors.IsNotFound(err) {
-			// api replicaSet
-
-		}
-		err = r.Create(ctx, &ovsdbAgentReplicaSet)
-		if err != nil {
-			return fmt.Errorf("unable to create replicaset of OVSDB Agent: %v", err)
-		}
-
-		ovsdbAgentReplicaSet = appsv1.ReplicaSet{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "ovsdb-agent",
-				Namespace: evpn4ovn.ObjectMeta.Namespace,
-				Labels:    map[string]string{"app": "ovsdb-agent"},
-				OwnerReferences: []metav1.OwnerReference{
-					{
-						APIVersion: evpn4ovn.APIVersion,
-						Kind:       evpn4ovn.Kind,
-						Name:       evpn4ovn.Name,
-						UID:        evpn4ovn.UID,
-					},
+	ovsdbAgentReplicaSet = appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "ovsdb-agent",
+			Namespace: evpn4ovn.ObjectMeta.Namespace,
+			Labels:    map[string]string{"app": "ovsdb-agent"},
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion: evpn4ovn.APIVersion,
+					Kind:       evpn4ovn.Kind,
+					Name:       evpn4ovn.Name,
+					UID:        evpn4ovn.UID,
 				},
 			},
-			Spec: appsv1.ReplicaSetSpec{
-				Replicas: &replicas,
-				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": "ovsdb-agent"},
+		},
+		Spec: appsv1.ReplicaSetSpec{
+			Replicas: &replicas,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "ovsdb-agent"},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app": "ovsdb-agent"},
 				},
-				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Labels: map[string]string{"app": "ovsdb-agent"},
-					},
-					Spec: corev1.PodSpec{
-						Containers: []corev1.Container{
-							{
-								Name:  evpn4ovn.ObjectMeta.Name + "-container",
-								Image: imageOvsdbAgent,
-								Env: []corev1.EnvVar{
-									{
-										Name:  "OVN_PROVIDER",
-										Value: "microovn",
-									},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "ovsdb-agent",
+							Image: imageOvsdbAgent,
+							Env: []corev1.EnvVar{
+								{
+									Name:  "OVN_PROVIDER",
+									Value: "microovn",
 								},
-								VolumeMounts: []corev1.VolumeMount{
-									{
-										Name:      "app-settings",
-										MountPath: "/config",
-									},
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "app-settings",
+									MountPath: "/config",
 								},
 							},
 						},
-						Volumes: []corev1.Volume{
-							{
-								Name: "app-settings",
-								VolumeSource: corev1.VolumeSource{
-									ConfigMap: &corev1.ConfigMapVolumeSource{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "app-settings",
-										},
+					},
+					Volumes: []corev1.Volume{
+						{
+							Name: "app-settings",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "app-settings",
 									},
 								},
 							},
@@ -294,13 +265,9 @@ func (r *Evpn4OvnReconciler) createOrUpdateOvsdbAgentReplicaSet(ctx context.Cont
 					},
 				},
 			},
-		}
-		err = r.Create(ctx, &ovsdbAgentReplicaSet)
-		if err != nil {
-			return fmt.Errorf("unable to create replicaset of OVSDB Agent: %v", err)
-		}
-
+		},
 	}
+
 	_, err := controllerutil.CreateOrUpdate(ctx, r.Client, &ovsdbAgentReplicaSet, func() error {
 		return nil
 	})
@@ -314,7 +281,7 @@ func (r *Evpn4OvnReconciler) createOrUpdateOvsdbAgentReplicaSet(ctx context.Cont
 func (r *Evpn4OvnReconciler) createOrUpdateMpbgpAgentDaemonset(ctx context.Context, evpn4ovn *evpnapiv1alpha1.Evpn4Ovn) error {
 	mpbgpAgentDaemonset := appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      evpn4ovn.ObjectMeta.Name + "-daemonset",
+			Name:      "mpbgp-agent",
 			Namespace: evpn4ovn.ObjectMeta.Namespace,
 			Labels:    map[string]string{"app": "mpbgp-agent"},
 		},
@@ -330,7 +297,7 @@ func (r *Evpn4OvnReconciler) createOrUpdateMpbgpAgentDaemonset(ctx context.Conte
 					HostNetwork: true,
 					Containers: []corev1.Container{
 						{
-							Name:  evpn4ovn.ObjectMeta.Name + "-container",
+							Name:  "mpbgp-agent",
 							Image: imageMpbgpAgent,
 							VolumeMounts: []corev1.VolumeMount{
 								{Name: "app-settings", MountPath: "/config"},
